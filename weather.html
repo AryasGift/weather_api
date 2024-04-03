@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="./weather.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300">
+    <title>Document</title>
+</head>
+<body class="custom-background">
+    <h1 class="text-center text-white">Weather Today</h1>
+    <div class="container bg-light w-75 shadow mt-4">
+       <div class="row">
+            <div class="col-lg-6 pt-3 col-6" id="div1">
+                <div class="time"></div>
+                <img src="./images/two-clouds.png" class="image1" >
+                <p id="temperature"></p>
+
+            </div>
+            <div class="col-lg-6 ">
+                <div id="section">
+                    <div class="mb-3 mt-3">
+                        <input type="text" class="form-control" id="FormControlInput1"
+                            placeholder="Enter Your Location">
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-primary mb-3 mt-3 ms-2" id="button1"
+                            onclick="placeFind()"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </div>
+                <div id="section_hidden">
+            </div>
+                <div id="section2">
+                    <div class="card">
+                        <img src="./images/weather-icon.avif" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <p class="card-text1"></p>
+                        </div>
+                    </div>
+                    <div class="card ms-3" style="width: 10rem;">
+                        <img src="./images/final.png" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <p class="card-text2"></p>
+                        </div>
+                    </div>
+                    <div class="card ms-3" style="width: 10rem;">
+                        <img src="./images/Humidity.png" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <p class="card-text3"></p>
+                        </div>
+                    </div>
+                </div>
+                <div id="details">
+
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    var myDate = new Date();
+    var day = myDate.getDay();
+    var time = document.querySelector('.time');
+    var place = button1.value;
+    var formattedDate = ('0' + myDate.getDate()).slice(-2) + '-' + ('0' + (myDate.getMonth() + 1)).slice(-2) + '-' + myDate.getFullYear();
+    if (day == 0) {
+        time.innerHTML = `&nbsp;Sunday`;
+    }
+    else if (day == 1) {
+        time.innerHTML = `&nbsp;Monday`;
+    }
+    else if (day == 2) {
+        time.innerHTML = `&nbsp;Tuesday`;
+    }
+    else if (day == 3) {
+        time.innerHTML = `&nbsp;Wednesday`;
+    }
+    else if (day == 4) {
+        time.innerHTML = `&nbsp;Thursday`;
+    }
+    else if (day == 5) {
+        time.innerHTML = `&nbsp;Friday`;
+    }
+    else if (day == 6) {
+        time.innerHTML = `&nbsp;Saturday`;
+    }
+    time.innerHTML += `<br>&nbsp;${formattedDate}`;
+    var placeDiv = document.createElement('div');
+    function placeFind() {
+        var place = document.getElementById("FormControlInput1").value;
+        placeDiv.innerHTML = `<i class="fa-solid fa-location-dot"></i>` + `&nbsp;` + place;
+        time.appendChild(placeDiv);
+        fetch(`https://api.openweathermap.org/data/2.5/weather?q=${place}&appid=5b4bee0ba241d092159faf007e166080`)
+        .then(out=>out.json())
+        .then(out => displayData(out))
+        .catch(error => {
+            // Display error message when place is not found
+            document.getElementById("temperature").innerHTML = "Place not found";
+            console.error('Error fetching weather:', error);
+        });
+    }
+    function displayData(Weather_Array) {
+        var temp = Weather_Array.main.temp
+        var main = Weather_Array.weather[0].main;
+        var desc = Weather_Array.weather[0].description;
+        var sunRise=Weather_Array.sys.sunrise;
+        var sunSet=Weather_Array.sys.sunset;
+        var Humidity=Weather_Array.main.humidity
+        var FeelsLike= Weather_Array.main.feels_like;
+        var Pressure=Weather_Array.main.pressure;
+        var wind=Weather_Array.wind.speed;
+        temp = Math.round((temp - 273.15));
+        FeelsLike=Math.round((FeelsLike - 273.15));
+        if(main=="Snow"){
+           document.querySelector(".image1").src="./images/snow.png"
+        }
+        else if(main=="Clouds"){
+           document.querySelector(".image1").src="./images/two-clouds.png" 
+        }
+        else if(main=="Clear"){
+           document.querySelector(".image1").src="./images/tree.png" 
+        }
+        document.getElementById("temperature").innerHTML = temp + "°C";
+        document.getElementById("temperature").innerHTML += `<br>${main}`;
+        document.getElementById("temperature").innerHTML += `<br>${desc}`;
+        document.querySelector(".card-text1").innerHTML =`Sunrise: ${new Date(sunRise * 1000).toLocaleTimeString()}`;
+        document.querySelector(".card-text2").innerHTML =`Sunset: ${new Date(sunSet * 1000).toLocaleTimeString()}`;
+        document.querySelector(".card-text3").innerHTML =`Humidity: ${Humidity}`;
+        document.getElementById("details").innerHTML=`<br><p>Feels like:${FeelsLike+"°C"}<br>Pressure:${Pressure+"hPa"}<br><i class="fa-solid fa-wind"></i>:${wind+"Km/hr"}</p>`
+   }
+</script>
+</html>
